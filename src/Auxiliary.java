@@ -151,11 +151,12 @@ final class Pixel
 
 class Auxiliary
 {
-    private static Robot r;
+    private static Robot r = null;
 
-    Auxiliary(Robot r)
+    static void initRobot() throws Exception
     {
-        this.r = r;
+        if (Auxiliary.r == null)
+            Auxiliary.r = new Robot();
     }
 
     static void move(Point p) throws Exception

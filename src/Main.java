@@ -2,6 +2,10 @@ import java.awt.Robot;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,34 +14,31 @@ import com.beust.jcommander.ParameterException;
 
 final class Main
 {
-    private static final String logDir = "logs";
-
-    private static DateFormat dateFormat;
-    private static File logFile;
-    private static Options options;
-    private static Bot bot;
-
     public static void main(String[] args) throws Exception
     {
-        Robot robot = new Robot();
         Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String logDir = "logs";
+        File logFile = new File(logDir);
         Point dungeon = new Point(0, 0);
         Point bard = new Point(0, 0);
 
         // create logs directory if doesn't exist
-        logFile = new File(logDir);
-        if (!logFile.exists())
-            logFile.mkdir();
+        if (!logFile.exists()) {
+            if (!logFile.mkdir())
+                return;
+        }
 
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         logFile = new File("logs/" + dateFormat.format(date) + ".log");
-        options = new Options();
-        bot = new Bot(robot, logFile, options);
+
+        Bot.initRobot();
+        Bot.logWriter = new PrintWriter(new OutputStreamWriter(
+                new FileOutputStream(logFile), StandardCharsets.UTF_8), true);
 
         // parse options
         try {
             JCommander.newBuilder()
-                .addObject(options)
+                .addObject(new Options())
                 .build()
                 .parse(args);
         } catch (ParameterException ex) {
@@ -46,14 +47,14 @@ final class Main
             return;
         }
 
-        if (options.help) {
-            options.showHelp();
+        if (Options.help) {
+            Options.showHelp();
 
             return;
         }
 
-        if (options.hell) {
-            options.showHell();
+        if (Options.hell) {
+            Options.showHell();
 
             return;
         }
@@ -62,63 +63,63 @@ final class Main
         Thread.sleep(1500);
 
         // declare all future stuff used
-        bot.defineStuff();
+        Bot.defineStuff();
 
         // get user preffered dungeon before start...
-        if (options.checkDungeons) {
-            dungeon = bot.record(3);
+        if (Options.checkDungeons) {
+            dungeon = Bot.record(3);
 
-            bot.closeWindows();
+            Bot.closeWindows();
         }
 
         Thread.sleep(10000);
 
         // ...and bard for expeditions
-        if (options.checkExpeditions) {
+        if (Options.checkExpeditions) {
             // check access to the expeditions
-            if (bot.checkExpeditionAccessibility())
-                bard = bot.record(3);
+            if (Bot.checkExpeditionAccessibility())
+                bard = Bot.record(3);
             else
-                options.checkExpeditions = false;
+                Options.checkExpeditions = false;
         }
 
         // main loop
         while (true) {
-            if (bot.checkLobby()) {
-                bot.initPassage();
+            if (Bot.checkLobby()) {
+                Bot.initPassage();
 
-                if (options.checkAdsLobby)
-                    bot.checkAd();
+                if (Options.checkAdsLobby)
+                    Bot.checkAd();
 
-                if (options.checkDungeons)
-                    bot.checkDungeon(dungeon);
+                if (Options.checkDungeons)
+                    Bot.checkDungeon(dungeon);
 
-                if (options.checkRaids)
-                    bot.checkRaid();
+                if (Options.checkRaids)
+                    Bot.checkRaid();
 
-                if (options.checkPvps)
-                    bot.checkPvp();
+                if (Options.checkPvps)
+                    Bot.checkPvp();
 
-                if (options.checkTrials)
-                    bot.checkTrial();
+                if (Options.checkTrials)
+                    Bot.checkTrial();
 
-                if (options.checkExpeditions)
-                    bot.checkExpedition(bard);
+                if (Options.checkExpeditions)
+                    Bot.checkExpedition(bard);
 
-                if (options.checkFish)
-                    bot.checkFish();
+                if (Options.checkFish)
+                    Bot.checkFish();
 
-                bot.countTotal();
+                Bot.countTotal();
             } else {
-                bot.closeWindows();
+                Bot.closeWindows();
 
                 continue;
             }
 
-            if (options.checkBounties)
-                bot.collectBounties();
+            if (Options.checkBounties)
+                Bot.collectBounties();
 
-            bot.walkCircle();
+            Bot.walkCircle();
         }
     }
 }

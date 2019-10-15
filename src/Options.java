@@ -3,52 +3,52 @@ import com.beust.jcommander.Parameter;
 final class Options
 {
     @Parameter(names = {"--help"})
-    public static boolean help = false;
+    static boolean help = false;
 
     @Parameter(names = {"--hell"})
-    public static boolean hell = false;
+    static boolean hell = false;
 
     @Parameter(names = {"-difficult-dungeon"})
-    public static int difficultDungeon = 2;
+    static int difficultDungeon = 2;
 
     @Parameter(names = {"-difficult-raid"})
-    public static int difficultRaid = 2;
+    static int difficultRaid = 2;
 
     @Parameter(names = {"--no-check-dungeons"})
-    public static boolean checkDungeons = true;
+    static boolean checkDungeons = true;
 
     @Parameter(names = {"--no-check-raids"})
-    public static boolean checkRaids = true;
+    static boolean checkRaids = true;
 
     @Parameter(names = {"--no-check-pvps"})
-    public static boolean checkPvps = true;
+    static boolean checkPvps = true;
 
     @Parameter(names = {"--no-check-trials"})
-    public static boolean checkTrials = true;
+    static boolean checkTrials = true;
 
     @Parameter(names = {"--no-check-expeditions"})
-    public static boolean checkExpeditions = true;
+    static boolean checkExpeditions = true;
 
     @Parameter(names = {"--no-check-fish"})
-    public static boolean checkFish = true;
+    static boolean checkFish = true;
 
     @Parameter(names = {"--no-team-dungeon"})
-    public static boolean noTeam = false;
+    static boolean noTeam = false;
 
     @Parameter(names = {"--decline-ads-lobby"})
-    public static boolean checkAdsLobby = true;
+    static boolean checkAdsLobby = true;
 
     @Parameter(names = {"--decline-ads-battle"})
-    public static boolean declineAdsBattle = false;
+    static boolean declineAdsBattle = false;
 
     @Parameter(names = {"--decline-captures"})
-    public static boolean declineCaptures = false;
+    static boolean declineCaptures = false;
 
     @Parameter(names = {"--auto-team-dungeon"})
-    public static boolean autoTeam = false;
+    static boolean autoTeam = false;
 
     @Parameter(names = {"--check-bounties"})
-    public static boolean checkBounties = false;
+    static boolean checkBounties = false;
 
     static void showHelp()
     {

@@ -6,9 +6,7 @@ import java.io.PrintWriter;
 
 final class Bot extends Auxiliary
 {
-    private static File logFile;
-    private static PrintWriter logWriter;
-    private static Options options;
+    static PrintWriter logWriter;
 
     // fishing stuff
     static Pixel button_trade;
@@ -37,7 +35,6 @@ final class Bot extends Auxiliary
     //static Pixel button_watch_lobby;
     static Pixel button_watch_lobby;
     static Pixel button_watch_lobby_start;
-    static Point button_watch_lobby_skip;
 
     // pvp stuff
     static Point button_pvp;
@@ -62,8 +59,7 @@ final class Bot extends Auxiliary
     static Pixel button_yes;
     static Pixel button_no;
     static Pixel button_persuade;
-    static Point button_cinematic_open;
-    static Point button_cinematic_close;
+    static Point button_cinematic;
     static Point button_ad_close;
     //static Pixel button_still_here;
     static Pixel zone_treasure;
@@ -83,15 +79,8 @@ final class Bot extends Auxiliary
     private static int expeditions = 0;
     private static int fish = 0;
 
-    private static int walkDuration = 3000;//900000;
+    private static int walkDuration = 1000;
     private static boolean isGantlet;
-
-    Bot(Robot r, File f, Options opts) throws Exception
-    {
-        super(r);
-        logWriter = new PrintWriter(f);
-        options = opts;
-    }
 
     static void defineStuff()
     {
@@ -118,7 +107,6 @@ final class Bot extends Auxiliary
         //button_watch_lobby = new Pixel(1307, 430, 76, 61, 21);
         button_watch_lobby = new Pixel(1307, 502, 76, 61, 21);
         button_watch_lobby_start = new Pixel(884, 505, 95, 214, 240);
-        button_watch_lobby_skip = new Point(953, 670);
 
         button_pvp = new Point(589, 349);
         button_pvp_fight = new Point(1154, 444);
@@ -139,8 +127,7 @@ final class Bot extends Auxiliary
         button_yes = new Pixel(836, 596, 165, 211, 51);
         button_no = new Pixel(996, 596, 51, 179, 211);
         button_persuade = new Pixel(731, 565, 46, 174, 209);
-        button_cinematic_open = new Point(448, 442);
-        button_cinematic_close = new Point(1405, 219);
+        button_cinematic = new Point(448, 442);
         button_ad_close = new Point(1284, 158);
         //button_still_here = new Pixel(1006, 614, 79, 209, 239);
         zone_treasure = new Pixel(800, 491, 255, 0, 0);
@@ -157,9 +144,6 @@ final class Bot extends Auxiliary
         // debug
         System.out.printf("In walkCircle()... ");
 
-        /* It's horrible. I doesn't close a stream!.. I can't. */
-        logWriter.flush();
-
         pressKey(0, KeyEvent.VK_LEFT, walkDuration, 250);
         pressKey(0, KeyEvent.VK_UP, walkDuration, 250);
         pressKey(0, KeyEvent.VK_RIGHT, walkDuration, 250);
@@ -171,30 +155,30 @@ final class Bot extends Auxiliary
 
     static void initPassage()
     {
-        logWriter.printf("--- Passage has been started --- \n");
+        logWriter.printf("--- Passage has been started ---\n\n");
     }
 
     static void countTotal()
     {
-        logWriter.printf("--- Passage has been finished ---\n");
+        logWriter.printf("\n--- Passage has been finished ---\n");
         logWriter.printf("Total proceeds:\n");
 
-        if (options.checkDungeons)
+        if (Options.checkDungeons)
             logWriter.printf("# dungeons: %d\n", dungeons);
 
-        if (options.checkRaids)
+        if (Options.checkRaids)
             logWriter.printf("# raids: %d\n", raids);
 
-        if (options.checkPvps)
+        if (Options.checkPvps)
             logWriter.printf("# PvPs: %d\n", pvps);
 
-        if (options.checkTrials)
+        if (Options.checkTrials)
             logWriter.printf("# trials: %d\n", trials);
 
-        if (options.checkExpeditions)
+        if (Options.checkExpeditions)
             logWriter.printf("# expeditions: %d\n", expeditions);
 
-        if (options.checkFish)
+        if (Options.checkFish)
             logWriter.printf("# fish: %d\n", fish);
 
         logWriter.printf("-\n");
@@ -240,7 +224,7 @@ final class Bot extends Auxiliary
             // check for ad
             if (compareColors(button_watch.getPoint(),
                     button_watch.getColor())) {
-                if (!options.declineAdsBattle) {
+                if (!Options.declineAdsBattle) {
                     click(1000, button_watch.getPoint(), 3000);
 
                     if (compareColors(button_watch_decline.getPoint(),
@@ -278,7 +262,7 @@ final class Bot extends Auxiliary
             // check for capture
             if (compareColors(button_persuade.getPoint(),
                     button_persuade.getColor())) {
-                if (!options.declineCaptures) {
+                if (!Options.declineCaptures) {
                     click(0, button_persuade.getPoint(), 750);
                     pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
@@ -366,7 +350,7 @@ final class Bot extends Auxiliary
     {
         click(0, button_ad_close, 1500);
         click(0, button_ad_close, 1500);
-        click(0, button_cinematic_open, 250);
+        click(0, button_cinematic, 250);
         click(0, button_craft.getPoint(), 1000);
     }
 
@@ -513,8 +497,8 @@ final class Bot extends Auxiliary
         click(0, button_quests, 2000);
         click(0, dungeon, 1000);
 
-        chooseDifficult(options.difficultDungeon);
-        changeTeam(options.noTeam, options.autoTeam);
+        chooseDifficult(Options.difficultDungeon);
+        changeTeam(Options.noTeam, Options.autoTeam);
 
         pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
@@ -535,7 +519,7 @@ final class Bot extends Auxiliary
         click(0, button_raid, 2000);
         click(0, button_summon, 1000);
 
-        chooseDifficult(options.difficultRaid);
+        chooseDifficult(Options.difficultRaid);
         changeTeam(false, false);
 
         pressKey(0, KeyEvent.VK_ENTER, 1000, 0);

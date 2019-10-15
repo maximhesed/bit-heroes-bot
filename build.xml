@@ -26,7 +26,7 @@
     <target name="jar" depends="compile">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${ant.project.name}.jar"
-            basedir="${classes.dir}">
+             basedir="${classes.dir}">
 
             <!-- Merge JCommander with svyc, so as don't carry it
                  everytime. -->
