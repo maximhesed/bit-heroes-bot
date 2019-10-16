@@ -38,9 +38,6 @@ final class Options
     @Parameter(names = {"--decline-ads-lobby"})
     static boolean checkAdsLobby = true;
 
-    @Parameter(names = {"--decline-ads-battle"})
-    static boolean declineAdsBattle = false;
-
     @Parameter(names = {"--decline-captures"})
     static boolean declineCaptures = false;
 
@@ -76,8 +73,6 @@ final class Options
             "don't take a team in the dungeons\n");
         System.out.printf("  --decline-ads-lobby              %s",
             "don't check ads in the lobby\n");
-        System.out.printf("  --decline-ads-battle             %s",
-            "decline the ads in the battle\n");
         System.out.printf("  --decline-captures               %s",
             "decline the captures\n");
         System.out.printf("  --auto-team-dungeon              %s%s%s",

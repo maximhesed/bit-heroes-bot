@@ -35,6 +35,7 @@ final class Bot extends Auxiliary
     //static Pixel button_watch_lobby;
     static Pixel button_watch_lobby;
     static Pixel button_watch_lobby_start;
+    static Point button_watch_lobby_skip;
 
     // pvp stuff
     static Point button_pvp;
@@ -107,6 +108,7 @@ final class Bot extends Auxiliary
         //button_watch_lobby = new Pixel(1307, 430, 76, 61, 21);
         button_watch_lobby = new Pixel(1307, 502, 76, 61, 21);
         button_watch_lobby_start = new Pixel(884, 505, 95, 214, 240);
+        button_watch_lobby_skip = new Point(953, 670);
 
         button_pvp = new Point(589, 349);
         button_pvp_fight = new Point(1154, 444);
@@ -221,29 +223,27 @@ final class Bot extends Auxiliary
         while (true) {
             Thread.sleep(500);
 
+            // TODO: What to do with it?
             // check for ad
             if (compareColors(button_watch.getPoint(),
                     button_watch.getColor())) {
-                if (!Options.declineAdsBattle) {
-                    click(1000, button_watch.getPoint(), 3000);
+                click(1000, button_watch.getPoint(), 3000);
 
-                    if (compareColors(button_watch_decline.getPoint(),
-                            button_watch_decline.getColor()))
-                            decline();
-                    else {
-                        Thread.sleep(30000);
-
-                        collectWatch();
-
-                        ads += 1;
-                    }
-                } else {
+                if (compareColors(button_watch_decline.getPoint(),
+                        button_watch_decline.getColor())) {
                     decline();
 
                     ads -= 1;
+                } else {
+                    Thread.sleep(30000);
+
+                    collectWatch();
+
+                    ads += 1;
                 }
             }
 
+            // TODO: What to do with it?
             // check for treasure
             if (compareColors(zone_treasure.getPoint(),
                     zone_treasure.getColor())) {
@@ -274,7 +274,7 @@ final class Bot extends Auxiliary
                 }
             }
 
-            // check if adventure was finished
+            // check if adventure has been finished
             if (compareColors(button_yes.getPoint(),
                     button_yes.getColor()) ||
                     compareColors(button_no.getPoint(),
@@ -316,9 +316,10 @@ final class Bot extends Auxiliary
             click(0, button_watch_lobby_start.getPoint(), 3000);
 
             if (compareColors(button_watch_lobby_start.getPoint(),
-                    button_watch_lobby_start.getColor()))
-                decline();
-            else {
+                    button_watch_lobby_start.getColor())) {
+                click(0, button_watch_lobby_skip, 1000);
+                pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
+            } else {
                 Thread.sleep(30000);
 
                 collectWatch();
