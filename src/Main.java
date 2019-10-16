@@ -85,36 +85,31 @@ final class Main
 
         // main loop
         while (true) {
-            if (Bot.checkLobby()) {
-                Bot.initPassage();
+            Bot.closeWindows();
+            Bot.initPassage();
 
-                if (Options.checkAdsLobby)
-                    Bot.checkAd();
+            if (Options.checkAdsLobby)
+                Bot.checkAd();
 
-                if (Options.checkDungeons)
-                    Bot.checkDungeon(dungeon);
+            if (Options.checkDungeons)
+                Bot.checkDungeon(dungeon);
 
-                if (Options.checkRaids)
-                    Bot.checkRaid();
+            if (Options.checkRaids)
+                Bot.checkRaid();
 
-                if (Options.checkPvps)
-                    Bot.checkPvp();
+            if (Options.checkPvps)
+                Bot.checkPvp();
 
-                if (Options.checkTrials)
-                    Bot.checkTrial();
+            if (Options.checkTrials)
+                Bot.checkTrial();
 
-                if (Options.checkExpeditions)
-                    Bot.checkExpedition(bard);
+            if (Options.checkExpeditions)
+                Bot.checkExpedition(bard);
 
-                if (Options.checkFish)
-                    Bot.checkFish();
+            if (Options.checkFish)
+                Bot.checkFish();
 
-                Bot.countTotal();
-            } else {
-                Bot.closeWindows();
-
-                continue;
-            }
+            Bot.countTotal();
 
             if (Options.checkBounties)
                 Bot.collectBounties();

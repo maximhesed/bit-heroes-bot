@@ -14,6 +14,9 @@ final class Options
     @Parameter(names = {"-difficult-raid"})
     static int difficultRaid = 2;
 
+    @Parameter(names = {"--no-check-ads"})
+    static boolean checkAdsLobby = true;
+
     @Parameter(names = {"--no-check-dungeons"})
     static boolean checkDungeons = true;
 
@@ -35,9 +38,6 @@ final class Options
     @Parameter(names = {"--no-team-dungeon"})
     static boolean noTeam = false;
 
-    @Parameter(names = {"--decline-ads-lobby"})
-    static boolean checkAdsLobby = true;
-
     @Parameter(names = {"--decline-captures"})
     static boolean declineCaptures = false;
 
@@ -57,6 +57,8 @@ final class Options
             "change the difficult of the dungeons\n");
         System.out.printf("  -difficult-raid DIFFICULT        %s",
             "change the difficult of the raids\n");
+        System.out.printf("  --no-check-ads                   %s",
+            "don't check ads in the lobby\n");
         System.out.printf("  --no-check-dungeons              %s",
             "don't go to the dungeons\n");
         System.out.printf("  --no-check-raids                 %s",
@@ -71,8 +73,6 @@ final class Options
             "don't go to fish\n");
         System.out.printf("  --no-team-dungeon                %s",
             "don't take a team in the dungeons\n");
-        System.out.printf("  --decline-ads-lobby              %s",
-            "don't check ads in the lobby\n");
         System.out.printf("  --decline-captures               %s",
             "decline the captures\n");
         System.out.printf("  --auto-team-dungeon              %s%s%s",

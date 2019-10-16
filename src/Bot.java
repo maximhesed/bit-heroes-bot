@@ -1,8 +1,11 @@
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.PrintWriter;
+import javax.swing.Timer;
 
 final class Bot extends Auxiliary
 {
@@ -62,7 +65,6 @@ final class Bot extends Auxiliary
     static Pixel button_persuade;
     static Point button_cinematic;
     static Point button_ad_close;
-    //static Pixel button_still_here;
     static Pixel zone_treasure;
     static Pixel zone_treasure_no_keys;
     static Pixel button_team_auto;
@@ -80,8 +82,9 @@ final class Bot extends Auxiliary
     private static int expeditions = 0;
     private static int fish = 0;
 
-    private static int walkDuration = 1000;
+    private static int walkDuration = 3000;
     private static boolean isGantlet;
+    private static boolean isWalk;
 
     static void defineStuff()
     {
@@ -105,8 +108,14 @@ final class Bot extends Auxiliary
 
         button_watch = new Pixel(827, 614, 51, 179, 211);
         button_watch_decline = new Pixel(968, 612, 244, 143, 61);
-        //button_watch_lobby = new Pixel(1307, 430, 76, 61, 21);
-        button_watch_lobby = new Pixel(1307, 502, 76, 61, 21);
+
+        /* Watch button changes it's location, depending on the
+         * expedition availability (in the game self). */
+        if (!Options.checkExpeditions)
+            button_watch_lobby = new Pixel(1307, 502, 76, 61, 21);
+        else
+            button_watch_lobby = new Pixel(1307, 430, 76, 61, 21);
+
         button_watch_lobby_start = new Pixel(884, 505, 95, 214, 240);
         button_watch_lobby_skip = new Point(953, 670);
 
@@ -131,7 +140,6 @@ final class Bot extends Auxiliary
         button_persuade = new Pixel(731, 565, 46, 174, 209);
         button_cinematic = new Point(448, 442);
         button_ad_close = new Point(1284, 158);
-        //button_still_here = new Pixel(1006, 614, 79, 209, 239);
         zone_treasure = new Pixel(800, 491, 255, 0, 0);
         zone_treasure_no_keys = new Pixel(1046, 573, 254, 0, 0);
         button_team_auto = new Pixel(759, 699, 51, 179, 211);
@@ -143,16 +151,61 @@ final class Bot extends Auxiliary
     // anti kick
     static void walkCircle() throws Exception
     {
+        ActionListener walkPerformer = new ActionListener()
+        {
+            int turns = 0;
+
+            public void actionPerformed(ActionEvent event)
+            {
+                try {
+                    switch (turns) {
+                    case 0:
+                        pressKey(0, KeyEvent.VK_LEFT, 0, 250);
+
+                        break;
+                    case 1:
+                        pressKey(0, KeyEvent.VK_UP, 0, 250);
+
+                        break;
+                    case 2:
+                        pressKey(0, KeyEvent.VK_RIGHT, 0, 250);
+
+                        break;
+                    case 3:
+                        pressKey(0, KeyEvent.VK_DOWN, 2000, 250);
+
+                        // debug
+                        System.out.printf("break\n");
+
+                        Bot.isWalk = false;
+
+                        break;
+                    }
+                } catch (Exception ex) {
+                    System.err.printf("%s\n", ex.getMessage());
+                }
+
+                turns += 1;
+            }
+        };
+
+        Timer timer = new Timer(walkDuration, walkPerformer);
+
         // debug
         System.out.printf("In walkCircle()... ");
 
-        pressKey(0, KeyEvent.VK_LEFT, walkDuration, 250);
-        pressKey(0, KeyEvent.VK_UP, walkDuration, 250);
-        pressKey(0, KeyEvent.VK_RIGHT, walkDuration, 250);
-        pressKey(0, KeyEvent.VK_DOWN, walkDuration, 250);
+        Bot.isWalk = true;
 
-        // debug
-        System.out.printf("break.\n");
+        timer.setRepeats(true);
+        timer.start();
+
+        while (Bot.isWalk) {
+            Thread.sleep(500);
+
+            closeWindows();
+        }
+
+        timer.stop();
     }
 
     static void initPassage()
@@ -162,7 +215,8 @@ final class Bot extends Auxiliary
 
     static void countTotal()
     {
-        logWriter.printf("\n--- Passage has been finished ---\n");
+        logWriter.printf("\n");
+        logWriter.printf("--- Passage has been finished ---\n\n");
         logWriter.printf("Total proceeds:\n");
 
         if (Options.checkDungeons)
@@ -187,6 +241,7 @@ final class Bot extends Auxiliary
         logWriter.printf("# persuades: %d\n", persuades);
         logWriter.printf("# ads: %d\n", ads);
         logWriter.printf("# treasures: %d\n", treasures);
+        logWriter.printf("\n");
     }
 
     static void accept() throws Exception
@@ -223,7 +278,7 @@ final class Bot extends Auxiliary
         while (true) {
             Thread.sleep(500);
 
-            // TODO: What to do with it?
+            // TODO: User disabled ads in the game settings.
             // check for ad
             if (compareColors(button_watch.getPoint(),
                     button_watch.getColor())) {
@@ -243,7 +298,7 @@ final class Bot extends Auxiliary
                 }
             }
 
-            // TODO: What to do with it?
+            // TODO: User disabled treasures in the game settings.
             // check for treasure
             if (compareColors(zone_treasure.getPoint(),
                     zone_treasure.getColor())) {
