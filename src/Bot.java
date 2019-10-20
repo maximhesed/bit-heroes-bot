@@ -47,7 +47,10 @@ final class Bot extends Auxiliary
 
     // expeditions stuff
     static Pixel button_expedition;
+    static Point button_expedition_play;
     static Point button_expedition_enter;
+    static Point button_expedition_close;
+    static Point button_expedition_close_2;
 
     // trials stuff
     static Pixel button_trial;
@@ -82,7 +85,7 @@ final class Bot extends Auxiliary
     private static int expeditions = 0;
     private static int fish = 0;
 
-    private static int walkDuration = 3000;
+    private static int walkDuration = 900000;
     private static boolean isGantlet;
     private static boolean isWalk;
 
@@ -123,8 +126,11 @@ final class Bot extends Auxiliary
         button_pvp_fight = new Point(1154, 444);
         button_pvp_fight_close = new Pixel(951, 676, 160, 209, 46);
 
-        button_expedition = new Pixel(1314, 500);
+        button_expedition = new Pixel(1316, 492, 133, 134, 199);
+        button_expedition_play = new Point(1102, 522);
         button_expedition_enter = new Point(950, 697);
+        button_expedition_close = new Point(1142, 355);
+        button_expedition_close_2 = new Point(1281, 314);
 
         button_trial = new Pixel(1311, 577, 231, 45, 85);
         zone_trial_close = new Pixel(760, 425, 197, 145, 0);
@@ -278,7 +284,7 @@ final class Bot extends Auxiliary
         while (true) {
             Thread.sleep(500);
 
-            // TODO: User disabled ads in the game settings.
+            // TODO: If user disabled ads in the game settings?
             // check for ad
             if (compareColors(button_watch.getPoint(),
                     button_watch.getColor())) {
@@ -298,7 +304,7 @@ final class Bot extends Auxiliary
                 }
             }
 
-            // TODO: User disabled treasures in the game settings.
+            // TODO: If user disabled treasures in the game settings?
             // check for treasure
             if (compareColors(zone_treasure.getPoint(),
                     zone_treasure.getColor())) {
@@ -354,10 +360,10 @@ final class Bot extends Auxiliary
         if (compareColors(button_no.getPoint(), button_no.getColor())) {
             pressKey(0, KeyEvent.VK_ESCAPE, 750, 0);
 
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     // check for ad
@@ -427,8 +433,6 @@ final class Bot extends Auxiliary
     // check fish availability
     static void checkFish() throws Exception
     {
-        int i;
-
         click(0, button_fishing, 1500);
 
         /* I'm not sure, that it's right. */
@@ -558,7 +562,7 @@ final class Bot extends Auxiliary
 
         pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
-        if (!checkEnough()) {
+        if (checkEnough()) {
             logWriter.printf("Starting dungeon... ");
 
             dungeons += 1;
@@ -580,7 +584,7 @@ final class Bot extends Auxiliary
 
         pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
-        if (!checkEnough()) {
+        if (checkEnough()) {
             logWriter.printf("Starting raid... ");
 
             raids += 1;
@@ -597,7 +601,7 @@ final class Bot extends Auxiliary
         click(0, button_pvp, 2000);
         click(0, button_play_another, 1000);
 
-        if (!checkEnough()) {
+        if (checkEnough()) {
             logWriter.printf("Starting PvP... ");
 
             pvps += 1;
@@ -641,7 +645,7 @@ final class Bot extends Auxiliary
         click(0, button_trial.getPoint(), 2000);
         click(0, button_play_another, 1500);
 
-        if (!checkEnough()) {
+        if (checkEnough()) {
             trials += 1;
 
             changeTeam(false, false);
@@ -680,7 +684,7 @@ final class Bot extends Auxiliary
         click(0, button_expedition.getPoint(), 2000);
         click(0, button_play_another, 1500);
 
-        if (!checkEnough()) {
+        if (checkEnough()) {
             logWriter.printf("Starting expedition... ");
 
             expeditions += 1;
@@ -693,12 +697,14 @@ final class Bot extends Auxiliary
             pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
             check();
+
+            click(4000, button_expedition_close, 1000);
+            click(0, button_expedition_close_2, 1000);
         }
 
         closeWindows();
     }
 
-    // FIXME: Update button_expedition.
     static boolean checkExpeditionAccessibility() throws Exception
     {
         if (compareColors(button_expedition.getPoint(),

@@ -67,20 +67,38 @@ final class Main
 
         // get user preffered dungeon before start...
         if (Options.checkDungeons) {
+            Bot.click(0, Bot.button_quests, 1000);
+
             dungeon = Bot.record(3);
 
             Bot.closeWindows();
+        }
+
+        if (Options.checkExpeditions) {
+            // debug
+            System.out.printf("Check expeditions accessibility... ");
+
+            // check access to the expeditions
+            if (!Bot.checkExpeditionAccessibility()) {
+                // debug
+                System.out.printf("not available.\n");
+
+                Options.checkExpeditions = false;
+            } else
+                // debug
+                System.out.printf("available.\n");
         }
 
         Thread.sleep(10000);
 
         // ...and bard for expeditions
         if (Options.checkExpeditions) {
-            // check access to the expeditions
-            if (Bot.checkExpeditionAccessibility())
-                bard = Bot.record(3);
-            else
-                Options.checkExpeditions = false;
+            Bot.click(0, Bot.button_expedition.getPoint(), 1000);
+            Bot.click(0, Bot.button_expedition_play, 1000);
+
+            bard = Bot.record(3);
+
+            Bot.closeWindows();
         }
 
         // main loop
