@@ -76,10 +76,10 @@ final class Options
         System.out.printf("  --decline-captures               %s",
             "decline the captures\n");
         System.out.printf("  --auto-team-dungeon              %s%s%s",
-            "if before the dungeon team isn't full,\n", indent,
-            "than fill in it automatically\n");
+            "if before the dungeon team isn't fully\n", indent,
+            "formed, then do it automatically\n");
         System.out.printf("  --check-bounties                 %s",
-            "check the bounties after the passage\n");
+            "check the bounties after a passage\n");
     }
 
     static void showHell()

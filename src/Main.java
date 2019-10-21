@@ -74,6 +74,9 @@ final class Main
             Bot.closeWindows();
         }
 
+		if (Options.checkDungeons && Options.checkExpeditions)
+			Thread.sleep(5000);
+
         if (Options.checkExpeditions) {
             // debug
             System.out.printf("Check expeditions accessibility... ");
@@ -88,8 +91,6 @@ final class Main
                 // debug
                 System.out.printf("available.\n");
         }
-
-        Thread.sleep(10000);
 
         // ...and bard for expeditions
         if (Options.checkExpeditions) {

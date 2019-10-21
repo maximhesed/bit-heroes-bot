@@ -11,7 +11,7 @@ final class Bot extends Auxiliary
 {
     static PrintWriter logWriter;
 
-    // fishing stuff
+    // fish stuff
     static Pixel button_trade;
     static Pixel button_got_away;
     static Point button_fishing;
@@ -25,17 +25,16 @@ final class Bot extends Auxiliary
     static Pixel frame_unicorn;
     static Point button_start;
 
-    // quests stuff
+    // quest stuff
     static Point button_quests;
 
-    // raids stuff
+    // raid stuff
     static Point button_raid;
     static Point button_summon;
 
-    // ads stuff
+    // ad stuff
     static Pixel button_watch;
     static Pixel button_watch_decline;
-    //static Pixel button_watch_lobby;
     static Pixel button_watch_lobby;
     static Pixel button_watch_lobby_start;
     static Point button_watch_lobby_skip;
@@ -45,14 +44,14 @@ final class Bot extends Auxiliary
     static Point button_pvp_fight;
     static Pixel button_pvp_fight_close;
 
-    // expeditions stuff
+    // expedition stuff
     static Pixel button_expedition;
     static Point button_expedition_play;
     static Point button_expedition_enter;
     static Point button_expedition_close;
     static Point button_expedition_close_2;
 
-    // trials stuff
+    // trial stuff
     static Pixel button_trial;
     static Pixel zone_trial_close;
 
@@ -75,15 +74,15 @@ final class Bot extends Auxiliary
     static Point button_bounties;
     static Pixel button_loot;
 
-    private static int persuades = 0;
-    private static int ads = 0;
-    private static int treasures = 0;
     private static int dungeons = 0;
     private static int raids = 0;
     private static int pvps = 0;
     private static int trials = 0;
     private static int expeditions = 0;
     private static int fish = 0;
+    private static int persuades = 0;
+    private static int ads = 0;
+    private static int treasures = 0;
 
     private static int walkDuration = 900000;
     private static boolean isGantlet;
@@ -291,11 +290,9 @@ final class Bot extends Auxiliary
                 click(1000, button_watch.getPoint(), 3000);
 
                 if (compareColors(button_watch_decline.getPoint(),
-                        button_watch_decline.getColor())) {
+                        button_watch_decline.getColor()))
                     decline();
-
-                    ads -= 1;
-                } else {
+                else {
                     Thread.sleep(30000);
 
                     collectWatch();
@@ -308,15 +305,13 @@ final class Bot extends Auxiliary
             // check for treasure
             if (compareColors(zone_treasure.getPoint(),
                     zone_treasure.getColor())) {
-                if (!compareColors(zone_treasure_no_keys.getPoint(),
-                        zone_treasure_no_keys.getColor())) {
+                if (compareColors(zone_treasure_no_keys.getPoint(),
+                        zone_treasure_no_keys.getColor()))
+                    decline();
+                else {
                     accept();
 
                     treasures += 1;
-                } else {
-                    decline();
-
-                    treasures -= 1;
                 }
             }
 
@@ -328,11 +323,8 @@ final class Bot extends Auxiliary
                     pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
                     persuades += 1;
-                } else {
+                } else
                     decline();
-
-                    persuades -= 1;
-                }
             }
 
             // check if adventure has been finished
@@ -464,13 +456,13 @@ final class Bot extends Auxiliary
                     continue;
                 }
 
-                /* By the way, here is observed by-effect the delay above:
-                 * catching starts not right away, that is a serious
-                 * defect. */
                 /* TODO: Need to find a way, that will allow send key
                  * event instantly or search another possibility catching
                  * a fish only with 100% chance. I think, that is
                  * feasible. */
+                /* By the way, here is observed by-effect the delay above:
+                 * catching starts not right away, that is a serious
+                 * defect. */
                 while (true) {
                     if (compareColors(zone_green.getPoint(),
                             zone_green.getColor())) {
