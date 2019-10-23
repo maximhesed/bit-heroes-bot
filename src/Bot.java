@@ -73,6 +73,7 @@ final class Bot extends Auxiliary
     static Pixel button_team_clear;
     static Point button_bounties;
     static Pixel button_loot;
+    static Pixel zone_dialog;
 
     private static int dungeons = 0;
     private static int raids = 0;
@@ -151,6 +152,7 @@ final class Bot extends Auxiliary
         button_team_clear = new Pixel(875, 696, 244, 143, 61);
         button_bounties = new Point(680, 682);
         button_loot = new Pixel(1050, 494, 165, 211, 52);
+        zone_dialog = new Pixel(1231, 459, 27, 33, 43);
     }
 
     // anti kick
@@ -282,6 +284,16 @@ final class Bot extends Auxiliary
 
         while (true) {
             Thread.sleep(500);
+
+            // check for dialog
+            if (compareColors(zone_dialog.getPoint(),
+                    zone_dialog.getColor())) {
+                int i;
+
+                for (i = 0; i < 12; i++)
+                    click(0, new Point(zone_dialog.getX(),
+                        zone_dialog.getY() - 30), 250);
+            }
 
             // TODO: If user disabled ads in the game settings?
             // check for ad
