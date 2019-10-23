@@ -14,6 +14,12 @@ import com.beust.jcommander.ParameterException;
 
 final class Main
 {
+    private static void optionsInvalid()
+    {
+        System.out.printf("Type --help for more information.\n");
+        System.exit(-1);
+    }
+
     public static void main(String[] args) throws Exception
     {
         Date date = new Date();
@@ -26,7 +32,7 @@ final class Main
         // create logs directory if doesn't exist
         if (!logFile.exists()) {
             if (!logFile.mkdir())
-                return;
+                System.exit(-1);
         }
 
         logFile = new File("logs/" + dateFormat.format(date) + ".log");
@@ -42,22 +48,24 @@ final class Main
                 .build()
                 .parse(args);
         } catch (ParameterException ex) {
-            System.out.printf("Type --help for more information.\n");
-
-            return;
+            optionsInvalid();
         }
 
         if (Options.help) {
             Options.showHelp();
 
-            return;
+            System.exit(-1);
         }
 
         if (Options.hell) {
             Options.showHell();
 
-            return;
+            System.exit(-1);
         }
+
+        // check walk duration
+        if (Options.walkDuration < 1000 || Options.walkDuration > 900000)
+            optionsInvalid();
 
         // wait a bit, while user open game window
         Thread.sleep(1500);

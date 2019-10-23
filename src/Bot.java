@@ -85,7 +85,6 @@ final class Bot extends Auxiliary
     private static int ads = 0;
     private static int treasures = 0;
 
-    private static int walkDuration = 900000;
     private static boolean isGantlet;
     private static boolean isWalk;
 
@@ -196,7 +195,7 @@ final class Bot extends Auxiliary
             }
         };
 
-        Timer timer = new Timer(walkDuration, walkPerformer);
+        Timer timer = new Timer(Options.walkDuration, walkPerformer);
 
         // debug
         System.out.printf("In walkCircle()... ");

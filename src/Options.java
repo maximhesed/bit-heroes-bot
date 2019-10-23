@@ -14,6 +14,9 @@ final class Options
     @Parameter(names = {"-difficult-raid"})
     static int difficultRaid = 2;
 
+    @Parameter(names = {"-walk-duration"})
+    static int walkDuration = 900000; // 15 minutes
+
     @Parameter(names = {"--no-check-ads"})
     static boolean checkAdsLobby = true;
 
@@ -57,6 +60,10 @@ final class Options
             "change the difficult of the dungeons\n");
         System.out.printf("  -difficult-raid DIFFICULT        %s",
             "change the difficult of the raids\n");
+        System.out.printf("  -walk-duration DURATION          %s%s%s",
+            "set anti kick delay in ms (4 times waiting for DURATION)\n",
+            indent,
+            "(1000 <= DURATION <= 900000) (default is 900000)\n");
         System.out.printf("  --no-check-ads                   %s",
             "don't check ads in the lobby\n");
         System.out.printf("  --no-check-dungeons              %s",
