@@ -330,8 +330,7 @@ final class Bot extends Auxiliary
             if (compareColors(button_persuade.getPoint(),
                     button_persuade.getColor())) {
                 if (!Options.declineCaptures) {
-                    click(0, button_persuade.getPoint(), 750);
-                    pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
+                    accept();
 
                     persuades += 1;
                 } else
