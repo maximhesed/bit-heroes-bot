@@ -15,7 +15,7 @@ What can bot do:
 6. To fish
 
 ### Build
-Easiest tool for this bot building is ant. Use ``ant jar`` to get bot in
+Easiest tool to build this bot is ant. Use ``ant jar`` to get bot in
 jar archive.
 
 By the way, bot using [JCommander](jcommander.org). Just create ``lib`` dir

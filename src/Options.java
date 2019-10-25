@@ -73,9 +73,9 @@ final class Options
         System.out.printf("  --no-check-pvps                  %s",
             "don't go to PvPs\n");
         System.out.printf("  --no-check-trials                %s",
-            "don't go to the trials\n");
+            "don't go to the trials/gauntlets\n");
         System.out.printf("  --no-check-expeditions           %s",
-            "don't go to the expeditions\n");
+            "don't go to the expeditions/invasions\n");
         System.out.printf("  --no-check-fish                  %s",
             "don't go to fish\n");
         System.out.printf("  --no-team-dungeon                %s",
@@ -92,5 +92,11 @@ final class Options
     static void showHell()
     {
         System.out.printf("Of course, but not here.\n");
+    }
+
+    static void invalid()
+    {
+        System.out.printf("Type --help for more information.\n");
+        System.exit(-1);
     }
 }

@@ -5,10 +5,27 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import javax.swing.Timer;
 
 final class Bot extends Auxiliary
 {
+    private static int dungeons = 0;
+    private static int raids = 0;
+    private static int pvps = 0;
+    private static int trials = 0;
+    private static int gauntlets = 0;
+    private static int expeditions = 0;
+    private static int invasions = 0;
+    private static int fish = 0;
+    private static int persuades = 0;
+    private static int ads = 0;
+    private static int treasures = 0;
+
+    private static boolean isWalk;
+
     static PrintWriter logWriter;
 
     // fish stuff
@@ -44,16 +61,17 @@ final class Bot extends Auxiliary
     static Point button_pvp_fight;
     static Pixel button_pvp_fight_close;
 
-    // expedition stuff
+    // trial/gauntlet stuff
+    static Pixel button_trial;
+    static Pixel button_gauntlet;
+
+    // expedition/invasion stuff
     static Pixel button_expedition;
     static Point button_expedition_play;
     static Point button_expedition_enter;
     static Point button_expedition_close;
     static Point button_expedition_close_2;
-
-    // trial stuff
-    static Pixel button_trial;
-    static Pixel zone_trial_close;
+    static Pixel button_invasion;
 
     // another and common stuff
     static Pixel button_defeat;
@@ -74,19 +92,17 @@ final class Bot extends Auxiliary
     static Point button_bounties;
     static Pixel button_loot;
     static Pixel zone_dialog;
+    static Pixel zone_close;
 
-    private static int dungeons = 0;
-    private static int raids = 0;
-    private static int pvps = 0;
-    private static int trials = 0;
-    private static int expeditions = 0;
-    private static int fish = 0;
-    private static int persuades = 0;
-    private static int ads = 0;
-    private static int treasures = 0;
+    /* -1 - nothing;
+     *  0 - is trial;
+     *  1 - is gauntlet. */
+    static int trialValue = -1;
 
-    private static boolean isGantlet;
-    private static boolean isWalk;
+    /* -1 - nothing;
+     *  0 - is expedition;
+     *  1 - is invasion. */
+    static int expeditionValue = -1;
 
     static void defineStuff()
     {
@@ -125,14 +141,15 @@ final class Bot extends Auxiliary
         button_pvp_fight = new Point(1154, 444);
         button_pvp_fight_close = new Pixel(951, 676, 160, 209, 46);
 
+        button_trial = new Pixel(1311, 577, 231, 45, 85);
+        button_gauntlet = new Pixel(1323, 577, 3, 72, 100);
+
         button_expedition = new Pixel(1316, 492, 133, 134, 199);
         button_expedition_play = new Point(1102, 522);
         button_expedition_enter = new Point(950, 697);
         button_expedition_close = new Point(1142, 355);
         button_expedition_close_2 = new Point(1281, 314);
-
-        button_trial = new Pixel(1311, 577, 231, 45, 85);
-        zone_trial_close = new Pixel(760, 425, 197, 145, 0);
+        button_invasion = new Pixel(1330, 490, 244, 201, 96);
 
         button_defeat = new Pixel(906, 595, 47, 175, 209);
         button_play_another = new Point(1102, 514);
@@ -152,6 +169,64 @@ final class Bot extends Auxiliary
         button_bounties = new Point(680, 682);
         button_loot = new Pixel(1050, 494, 165, 211, 52);
         zone_dialog = new Pixel(1231, 459, 27, 33, 43);
+        zone_close = new Pixel(760, 425, 197, 145, 0);
+    }
+
+    static void init(File logFile) throws Exception
+    {
+        Point dungeon = new Point();
+        Point bard = new Point();
+
+        initRobot();
+        logWriter = new PrintWriter(new OutputStreamWriter(
+                new FileOutputStream(logFile), StandardCharsets.UTF_8), true);
+
+        // check walk duration
+        if (Options.walkDuration < 1000 || Options.walkDuration > 900000)
+            Options.invalid();
+
+        // wait a bit, while user open game window
+        Thread.sleep(1500);
+
+        // declare all future stuff used
+        defineStuff();
+
+        // get user the preffered dungeon before start...
+        if (Options.checkDungeons) {
+            dungeon = recordDungeon();
+
+            closeWindows();
+        }
+
+		if (Options.checkDungeons && Options.checkExpeditions)
+			Thread.sleep(5000);
+
+        if (Options.checkExpeditions) {
+            // debug
+            System.out.printf("Check expeditions accessibility... ");
+
+            // check access to the expeditions
+            determineExpeditionValue();
+
+            if (expeditionValue == -1) {
+                // debug
+                System.out.printf("not available.\n");
+
+                Options.checkExpeditions = false;
+            } else
+                // debug
+                System.out.printf("available.\n");
+        }
+
+        // ...and bard for the expeditions
+        if (Options.checkExpeditions && expeditionValue == 0) {
+            bard = recordBard();
+
+            closeWindows();
+        }
+
+        // main loop
+        startTrack(dungeon, bard);
     }
 
     // anti kick
@@ -234,11 +309,19 @@ final class Bot extends Auxiliary
         if (Options.checkPvps)
             logWriter.printf("# PvPs: %d\n", pvps);
 
-        if (Options.checkTrials)
-            logWriter.printf("# trials: %d\n", trials);
+        if (Options.checkTrials) {
+            if (trialValue == 0)
+                logWriter.printf("# trials: %d\n", trials);
+            else if (trialValue == 1)
+                logWriter.printf("# gauntlets: %d\n", gauntlets);
+        }
 
-        if (Options.checkExpeditions)
-            logWriter.printf("# expeditions: %d\n", expeditions);
+        if (Options.checkExpeditions) {
+            if (expeditionValue == 0)
+                logWriter.printf("# expeditions: %d\n", expeditions);
+            else if (expeditionValue == 1)
+                logWriter.printf("# invasions: %d\n", invasions);
+        }
 
         if (Options.checkFish)
             logWriter.printf("# fish: %d\n", fish);
@@ -404,7 +487,7 @@ final class Bot extends Auxiliary
     static void closeWindows() throws Exception
     {
         while (!checkLobby()) {
-            /* Set focus on the game?.. */
+            /* Set focus to the game window?.. */
             click(500, button_craft.getPoint(), 500);
             pressKey(0, KeyEvent.VK_ESCAPE, 1000, 0);
         }
@@ -638,81 +721,188 @@ final class Bot extends Auxiliary
     // check trial/gauntlet availability
     static void checkTrial() throws Exception
     {
-        if (compareColors(button_trial.getPoint(),
-                button_trial.getColor()))
-            isGantlet = true;
-        else
-            isGantlet = false;
+        determineTrialValue();
 
         click(0, button_trial.getPoint(), 2000);
         click(0, button_play_another, 1500);
 
         if (checkEnough()) {
-            trials += 1;
-
             changeTeam(false, false);
 
             pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
-            if (isGantlet) {
+            if (trialValue == 0) {
+                logWriter.printf("Starting trial... ");
+
+                trials += 1;
+
+                check();
+            } else if (trialValue == 1) {
                 logWriter.printf("Starting gauntlet... ");
 
+                gauntlets += 1;
+
                 while (true) {
-                    // check for end of the battle
-                    if (compareColors(zone_trial_close.getPoint(),
-                            zone_trial_close.getColor())) {
-                        pressKey(0, KeyEvent.VK_ENTER, 2000, 0);
-
-                        logWriter.printf("finished.\n");
-
+                    if (checkBattleOver())
                         break;
-                    }
 
                     Thread.sleep(500);
                 }
-            } else {
-                logWriter.printf("Starting trial... ");
-
-                check();
             }
         }
 
         closeWindows();
     }
 
-    // check expedition availability
+    // check expedition/invasion availability
     static void checkExpedition(Point bard) throws Exception
     {
+        determineExpeditionValue();
+
         click(0, button_expedition.getPoint(), 2000);
         click(0, button_play_another, 1500);
 
         if (checkEnough()) {
-            logWriter.printf("Starting expedition... ");
-
-            expeditions += 1;
-
-            click(0, bard, 1000);
-            click(0, button_expedition_enter, 1000);
+            if (expeditionValue == 0) {
+                click(0, bard, 1000);
+                click(0, button_expedition_enter, 1000);
+            }
 
             changeTeam(false, false);
 
             pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
-            check();
+            if (expeditionValue == 0) {
+                logWriter.printf("Starting expedition... ");
 
-            click(4000, button_expedition_close, 1000);
-            click(0, button_expedition_close_2, 1000);
+                expeditions += 1;
+
+                check();
+
+                click(4000, button_expedition_close, 1000);
+                click(0, button_expedition_close_2, 1000);
+            } else if (expeditionValue == 1) {
+                logWriter.printf("Starting invasion... ");
+
+                invasions += 1;
+
+                while (true) {
+                    if (checkBattleOver())
+                        break;
+
+                    Thread.sleep(500);
+                }
+            }
         }
 
         closeWindows();
     }
 
-    static boolean checkExpeditionAccessibility() throws Exception
+    /* Check for the end of the battle, where window, informing about
+     * adventure completion, doesn't close automatically. */
+    static boolean checkBattleOver() throws Exception
+    {
+        if (compareColors(zone_close.getPoint(),
+                zone_close.getColor())) {
+            pressKey(0, KeyEvent.VK_ENTER, 2000, 0);
+
+            logWriter.printf("finished.\n");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    static void determineTrialValue()
+    {
+        if (compareColors(button_trial.getPoint(),
+                button_expedition.getColor()))
+            trialValue = 0;
+        else if (compareColors(button_gauntlet.getPoint(),
+                button_gauntlet.getColor()))
+            trialValue = 1;
+        else
+            trialValue = -1;
+    }
+
+    static void determineExpeditionValue()
     {
         if (compareColors(button_expedition.getPoint(),
                 button_expedition.getColor()))
-            return true;
+            expeditionValue = 0;
+        else if (compareColors(button_invasion.getPoint(),
+                button_invasion.getColor()))
+            expeditionValue = 1;
+        else
+            expeditionValue = -1;
+    }
 
-        return false;
+    static Point recordDungeon() throws Exception
+    {
+        Point dungeon = new Point();
+
+        click(0, button_quests, 1000);
+
+        dungeon = record(3);
+
+        return dungeon;
+    }
+
+    static Point recordBard() throws Exception
+    {
+        Point bard = new Point();
+
+        click(0, button_expedition.getPoint(), 1000);
+        click(0, button_expedition_play, 1000);
+
+        bard = record(3);
+
+        return bard;
+    }
+
+    static void startTrack(Point dungeon, Point bard) throws Exception
+    {
+        while (true) {
+            /* Set focus to the game window just in case. */
+            click(0, button_craft.getPoint(), 1000);
+
+            closeWindows();
+            initPassage();
+
+            if (Options.checkAdsLobby)
+                checkAd();
+
+            if (Options.checkDungeons)
+                checkDungeon(dungeon);
+
+            if (Options.checkRaids)
+                checkRaid();
+
+            if (Options.checkPvps)
+                checkPvp();
+
+            if (Options.checkTrials) {
+                determineTrialValue();
+
+                checkTrial();
+            }
+
+            if (Options.checkExpeditions) {
+                determineExpeditionValue();
+
+                checkExpedition(bard);
+            }
+
+            if (Options.checkFish)
+                checkFish();
+
+            countTotal();
+
+            if (Options.checkBounties)
+                collectBounties();
+
+            walkCircle();
+        }
     }
 }
