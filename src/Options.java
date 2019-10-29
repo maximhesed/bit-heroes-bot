@@ -1,4 +1,6 @@
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
 final class Options
 {
@@ -50,6 +52,18 @@ final class Options
     @Parameter(names = {"--check-bounties"})
     static boolean checkBounties = false;
 
+    static void init(String[] args)
+    {
+        try {
+            JCommander.newBuilder()
+                .addObject(new Options())
+                .build()
+                .parse(args);
+        } catch (ParameterException ex) {
+            Options.invalid();
+        }
+    }
+
     static void showHelp()
     {
         String indent = "                                   ";
@@ -87,11 +101,14 @@ final class Options
             "formed, then do it automatically\n");
         System.out.printf("  --check-bounties                 %s",
             "check the bounties after a passage\n");
+
+        System.exit(-1);
     }
 
     static void showHell()
     {
         System.out.printf("Of course, but not here.\n");
+        System.exit(-1);
     }
 
     static void invalid()

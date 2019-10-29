@@ -5,8 +5,6 @@ import java.io.File;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 
 final class Main
 {
@@ -14,39 +12,29 @@ final class Main
     {
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String logDir = "logs";
-        File logFile = new File(logDir);
+        final String logDirPath = "logs/";
+        File logDir = new File(logDirPath);
+        File logFile;
 
-        // create logs directory if doesn't exist
-        if (!logFile.exists()) {
-            if (!logFile.mkdir())
+        // create logs directory if doesn't exists
+        if (!logDir.exists()) {
+            if (!logDir.mkdir())
                 System.exit(-1);
         }
 
-        logFile = new File("logs/" + dateFormat.format(date) + ".log");
+        // create log file
+        logFile = new File(logDirPath + dateFormat.format(date) + ".log");
 
         // parse options
-        try {
-            JCommander.newBuilder()
-                .addObject(new Options())
-                .build()
-                .parse(args);
-        } catch (ParameterException ex) {
-            Options.invalid();
-        }
+        Options.init(args);
 
-        if (Options.help) {
+        if (Options.help)
             Options.showHelp();
 
-            System.exit(-1);
-        }
-
-        if (Options.hell) {
+        if (Options.hell)
             Options.showHell();
 
-            System.exit(-1);
-        }
-
+        Bot.checkSigint();
         Bot.init(logFile);
     }
 }

@@ -5,6 +5,7 @@
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir" value="${build.dir}/jar"/>
+    <property name="logs.dir" value="logs"/>
     <property name="main-class" value="Main"/>
 
     <path id="classpath">
@@ -14,6 +15,14 @@
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
+
+    <target name="clean-logs">
+        <delete>
+            <fileset dir="${logs.dir}" includes="*"/>
+        </delete>
+    </target>
+
+    <target name="clean-all" depends="clean, clean-logs"/>
 
     <target name="compile">
         <mkdir dir="${classes.dir}"/>

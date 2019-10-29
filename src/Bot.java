@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.lang.Runtime;
 import java.nio.charset.StandardCharsets;
 import javax.swing.Timer;
 
@@ -377,7 +378,6 @@ final class Bot extends Auxiliary
                         zone_dialog.getY() - 30), 250);
             }
 
-            // TODO: If user disabled ads in the game settings?
             // check for ad
             if (compareColors(button_watch.getPoint(),
                     button_watch.getColor())) {
@@ -395,7 +395,6 @@ final class Bot extends Auxiliary
                 }
             }
 
-            // TODO: If user disabled treasures in the game settings?
             // check for treasure
             if (compareColors(zone_treasure.getPoint(),
                     zone_treasure.getColor())) {
@@ -904,5 +903,17 @@ final class Bot extends Auxiliary
 
             walkCircle();
         }
+    }
+
+    // close log writer stream on SIGINT interrupting
+    static void checkSigint()
+    {
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            public void run()
+            {
+                logWriter.close();
+            }
+        });
     }
 }
