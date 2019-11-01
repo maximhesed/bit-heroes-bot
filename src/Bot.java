@@ -142,7 +142,7 @@ final class Bot extends Auxiliary
         button_pvp_fight = new Point(1154, 444);
         button_pvp_fight_close = new Pixel(951, 676, 160, 209, 46);
 
-        button_trial = new Pixel(1311, 577, 231, 45, 85);
+        button_trial = new Pixel(1324, 578, 56, 116, 174);
         button_gauntlet = new Pixel(1323, 577, 3, 72, 100);
 
         button_expedition = new Pixel(1316, 492, 133, 134, 199);
@@ -816,13 +816,16 @@ final class Bot extends Auxiliary
     static void determineTrialValue()
     {
         if (compareColors(button_trial.getPoint(),
-                button_expedition.getColor()))
+                button_trial.getColor()))
             trialValue = 0;
         else if (compareColors(button_gauntlet.getPoint(),
                 button_gauntlet.getColor()))
             trialValue = 1;
         else
             trialValue = -1;
+
+        // debug
+        System.out.printf("trialValue = %d\n", trialValue);
     }
 
     static void determineExpeditionValue()
@@ -862,12 +865,13 @@ final class Bot extends Auxiliary
 
     static void startTrack(Point dungeon, Point bard) throws Exception
     {
+        initPassage();
+
         while (true) {
             /* Set focus to the game window just in case. */
             click(0, button_craft.getPoint(), 1000);
 
             closeWindows();
-            initPassage();
 
             if (Options.checkAdsLobby)
                 checkAd();
@@ -896,8 +900,6 @@ final class Bot extends Auxiliary
             if (Options.checkFish)
                 checkFish();
 
-            countTotal();
-
             if (Options.checkBounties)
                 collectBounties();
 
@@ -912,6 +914,8 @@ final class Bot extends Auxiliary
         {
             public void run()
             {
+                countTotal();
+
                 logWriter.close();
             }
         });
