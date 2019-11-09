@@ -13,6 +13,12 @@ import javax.swing.Timer;
 
 final class Bot extends Auxiliary
 {
+    private static final int TRIAL = 0;
+    private static final int GAUNTLET = 1;
+    private static final int EXPEDITION = 0;
+    private static final int INVASION = 1;
+    private static final int GVG = 2;
+
     private static int dungeons = 0;
     private static int raids = 0;
     private static int pvps = 0;
@@ -20,6 +26,7 @@ final class Bot extends Auxiliary
     private static int gauntlets = 0;
     private static int expeditions = 0;
     private static int invasions = 0;
+    private static int gvgs = 0;
     private static int fish = 0;
     private static int persuades = 0;
     private static int ads = 0;
@@ -57,7 +64,7 @@ final class Bot extends Auxiliary
     static Pixel button_watch_lobby_start;
     static Point button_watch_lobby_skip;
 
-    // pvp stuff
+    // PvP stuff
     static Point button_pvp;
     static Point button_pvp_fight;
     static Pixel button_pvp_fight_close;
@@ -66,13 +73,15 @@ final class Bot extends Auxiliary
     static Pixel button_trial;
     static Pixel button_gauntlet;
 
-    // expedition/invasion stuff
+    // expedition/invasion/GvG stuff
     static Pixel button_expedition;
     static Point button_expedition_play;
     static Point button_expedition_enter;
     static Point button_expedition_close;
     static Point button_expedition_close_2;
     static Pixel button_invasion;
+    static Pixel button_gvg;
+    static Pixel button_gvg_fight_close;
 
     // another and common stuff
     static Pixel button_defeat;
@@ -95,14 +104,15 @@ final class Bot extends Auxiliary
     static Pixel zone_dialog;
     static Pixel zone_close;
 
-    /* -1 - nothing;
+    /* -1 - undefined;
      *  0 - is trial;
      *  1 - is gauntlet. */
     static int trialValue = -1;
 
-    /* -1 - nothing;
+    /* -1 - undefined;
      *  0 - is expedition;
-     *  1 - is invasion. */
+     *  1 - is invasion;
+     *  2 - is GvG. */
     static int expeditionValue = -1;
 
     static void defineStuff()
@@ -151,6 +161,8 @@ final class Bot extends Auxiliary
         button_expedition_close = new Point(1142, 355);
         button_expedition_close_2 = new Point(1281, 314);
         button_invasion = new Pixel(1330, 490, 244, 201, 96);
+        button_gvg = new Pixel(1319, 494, 247, 91, 0);
+        button_gvg_fight_close = new Pixel(901, 687, 165, 211, 51);
 
         button_defeat = new Pixel(906, 595, 47, 175, 209);
         button_play_another = new Point(1102, 514);
@@ -192,15 +204,15 @@ final class Bot extends Auxiliary
         // declare all future stuff used
         defineStuff();
 
+        // close all previous opened windows before start
+        closeWindows();
+
         // get user the preffered dungeon before start...
         if (Options.checkDungeons) {
             dungeon = recordDungeon();
 
             closeWindows();
         }
-
-		if (Options.checkDungeons && Options.checkExpeditions)
-			Thread.sleep(5000);
 
         if (Options.checkExpeditions) {
             // debug
@@ -209,14 +221,18 @@ final class Bot extends Auxiliary
             // check access to the expeditions
             determineExpeditionValue();
 
+            /* It's means, that the bot couldn't detect an expeditions icon
+             * in the lobby. */
             if (expeditionValue == -1) {
                 // debug
                 System.out.printf("not available.\n");
 
                 Options.checkExpeditions = false;
-            } else
+            } else {
                 // debug
                 System.out.printf("available.\n");
+                System.out.printf("expeditionValue = %d\n", expeditionValue);
+            }
         }
 
         // ...and bard for the expeditions
@@ -311,17 +327,19 @@ final class Bot extends Auxiliary
             logWriter.printf("# PvPs: %d\n", pvps);
 
         if (Options.checkTrials) {
-            if (trialValue == 0)
+            if (trialValue == TRIAL)
                 logWriter.printf("# trials: %d\n", trials);
-            else if (trialValue == 1)
+            else if (trialValue == GAUNTLET)
                 logWriter.printf("# gauntlets: %d\n", gauntlets);
         }
 
         if (Options.checkExpeditions) {
-            if (expeditionValue == 0)
+            if (expeditionValue == EXPEDITION)
                 logWriter.printf("# expeditions: %d\n", expeditions);
-            else if (expeditionValue == 1)
+            else if (expeditionValue == INVASION)
                 logWriter.printf("# invasions: %d\n", invasions);
+            else if (expeditionValue == GVG)
+                logWriter.printf("# GvGs: %d\n", gvgs);
         }
 
         if (Options.checkFish)
@@ -368,7 +386,7 @@ final class Bot extends Auxiliary
         while (true) {
             Thread.sleep(500);
 
-            // check for dialog
+            // check for dialog (XXX)
             if (compareColors(zone_dialog.getPoint(),
                     zone_dialog.getColor())) {
                 int i;
@@ -408,6 +426,8 @@ final class Bot extends Auxiliary
                 }
             }
 
+            /* TODO: Add extreme persuades mode: try bribe the captures
+             * if gems is enough. */
             // check for capture
             if (compareColors(button_persuade.getPoint(),
                     button_persuade.getColor())) {
@@ -688,19 +708,19 @@ final class Bot extends Auxiliary
         if (checkEnough()) {
             logWriter.printf("Starting PvP... ");
 
-            pvps += 1;
-
             click(10000, button_pvp_fight, 1000);
 
             changeTeam(false, false);
 
             pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
+            pvps += 1;
+
             while (true) {
                 // check for victory
                 if (compareColors(button_pvp_fight_close.getPoint(),
                         button_pvp_fight_close.getColor())) {
-                    click(0, button_pvp_fight_close.getPoint(), 2000);
+                    pressKey(0, KeyEvent.VK_ENTER, 2000, 0);
 
                     logWriter.printf("victory.\n");
 
@@ -730,20 +750,23 @@ final class Bot extends Auxiliary
 
             pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
 
-            if (trialValue == 0) {
+            if (trialValue == TRIAL) {
                 logWriter.printf("Starting trial... ");
 
                 trials += 1;
 
                 check();
-            } else if (trialValue == 1) {
+            } else if (trialValue == GAUNTLET) {
                 logWriter.printf("Starting gauntlet... ");
 
                 gauntlets += 1;
 
                 while (true) {
-                    if (checkBattleOver())
+                    if (checkBattleOver()) {
+                        logWriter.printf("finished.\n");
+
                         break;
+                    }
 
                     Thread.sleep(500);
                 }
@@ -753,25 +776,31 @@ final class Bot extends Auxiliary
         closeWindows();
     }
 
-    // check expedition/invasion availability
+    // check expedition/invasion/gvgs availability
     static void checkExpedition(Point bard) throws Exception
     {
         determineExpeditionValue();
 
-        click(0, button_expedition.getPoint(), 2000);
+        if (expeditionValue != GVG)
+            click(0, button_expedition.getPoint(), 2000);
+        else
+            click(0, button_gvg.getPoint(), 2000);
+
         click(0, button_play_another, 1500);
 
         if (checkEnough()) {
-            if (expeditionValue == 0) {
+            if (expeditionValue == EXPEDITION) {
                 click(0, bard, 1000);
                 click(0, button_expedition_enter, 1000);
             }
 
-            changeTeam(false, false);
+            if (expeditionValue != GVG) {
+                changeTeam(false, false);
 
-            pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
+                pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
+            }
 
-            if (expeditionValue == 0) {
+            if (expeditionValue == EXPEDITION) {
                 logWriter.printf("Starting expedition... ");
 
                 expeditions += 1;
@@ -780,13 +809,43 @@ final class Bot extends Auxiliary
 
                 click(4000, button_expedition_close, 1000);
                 click(0, button_expedition_close_2, 1000);
-            } else if (expeditionValue == 1) {
+            } else if (expeditionValue == INVASION) {
                 logWriter.printf("Starting invasion... ");
 
                 invasions += 1;
 
                 while (true) {
-                    if (checkBattleOver())
+                    if (checkBattleOver()) {
+                        logWriter.printf("finished.\n");
+
+                        break;
+                    }
+
+                    Thread.sleep(500);
+                }
+            } else if (expeditionValue == GVG) {
+                logWriter.printf("Starting GvG... ");
+
+                click(5000, button_pvp_fight, 2000);
+
+                changeTeam(false, false);
+
+                pressKey(0, KeyEvent.VK_ENTER, 1000, 0);
+
+                gvgs += 1;
+
+                while (true) {
+                    // check for victory
+                    if (compareColors(button_gvg_fight_close.getPoint(),
+                            button_gvg_fight_close.getColor())) {
+                        pressKey(0, KeyEvent.VK_ENTER, 2000, 0);
+
+                        logWriter.printf("victory.\n");
+
+                        break;
+                    }
+
+                    if (checkDefeat())
                         break;
 
                     Thread.sleep(500);
@@ -797,15 +856,11 @@ final class Bot extends Auxiliary
         closeWindows();
     }
 
-    /* Check for the end of the battle, where window, informing about
-     * adventure completion, doesn't close automatically. */
     static boolean checkBattleOver() throws Exception
     {
         if (compareColors(zone_close.getPoint(),
                 zone_close.getColor())) {
             pressKey(0, KeyEvent.VK_ENTER, 2000, 0);
-
-            logWriter.printf("finished.\n");
 
             return true;
         }
@@ -817,11 +872,11 @@ final class Bot extends Auxiliary
     {
         if (compareColors(button_trial.getPoint(),
                 button_trial.getColor()))
-            trialValue = 0;
+            trialValue = TRIAL;
         else if (compareColors(button_gauntlet.getPoint(),
                 button_gauntlet.getColor()))
-            trialValue = 1;
-        else
+            trialValue = GAUNTLET;
+        else /* For beauty. */
             trialValue = -1;
 
         // debug
@@ -832,10 +887,13 @@ final class Bot extends Auxiliary
     {
         if (compareColors(button_expedition.getPoint(),
                 button_expedition.getColor()))
-            expeditionValue = 0;
+            expeditionValue = EXPEDITION;
         else if (compareColors(button_invasion.getPoint(),
                 button_invasion.getColor()))
-            expeditionValue = 1;
+            expeditionValue = INVASION;
+        else if (compareColors(button_gvg.getPoint(),
+                button_gvg.getColor()))
+            expeditionValue = GVG;
         else
             expeditionValue = -1;
     }
